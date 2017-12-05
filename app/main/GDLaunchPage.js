@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 // 引用外部文件
 import Main from './Main'
+import PropTypes from 'prop-types';
 const {width,height}=Dimensions.get('window');
 export default class GDLaunchPage extends Component<{}> {
     componentDidMount() {

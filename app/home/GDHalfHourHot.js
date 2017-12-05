@@ -18,7 +18,7 @@ import {PullList} from 'react-native-pull';
 import GDCommunalNavBar from '../main/GDCommunalNavBar';
 import GDCommunalHotCeli from '../main/GDCommunalHotCeli';
 import GDNoDataView from '../main/GDNoDataView';
-
+import HTTPBase from '../http/HTTPBase';
 
 const {width,height} =Dimensions.get('window');
 export default class GDHalfHourHot extends Component<{}> {
@@ -35,22 +35,21 @@ export default class GDHalfHourHot extends Component<{}> {
       }
     //网络请求
     fetchData(resolve){
-            fetch('http://guangdiu.com/api/gethots.php')
-                .then((response)=>response.json())
-                .then((responseData) => {
-                    this.setState({
-                        dataSource:this.state.dataSource.cloneWithRows(responseData.data),
-                        loaded:true
-                    });
-                    if(resolve!==undefined){
-                        setTimeout(()=>{
-                            resolve();
-                        },1000);
+        HTTPBase.get('http://guangdiu.com/api/gethots.php')
+            .then((responseData) => {
+                this.setState({
+                    dataSource: this.state.dataSource.cloneWithRows(responseData.data),
+                    loaded:true,
+                });
+                if (resolve !== undefined){
+                    setTimeout(() => {
+                        resolve();  // 关闭动画
+                    }, 1000);
+                }
+            })
+            .catch((error) => {
 
-                    }
-
-                })
-                .done()
+            })
     }
     //返回每一行cell的样式
     renderRow(rowData){

@@ -77,30 +77,22 @@ export default class GDHome extends Component<{}> {
     //网络请求
     fetchData(resolve){
         let params={"country" :"ch","count":"10"};
-        HTTPBase.post('http://guangdiu.com/api/getlist.php')
-        let formData=new FormData();
-        formData.append("country","ch");
-        formData.append("count","10");
-        fetch('http://guangdiu.com/api/getlist.php',{
-            method:'POST',
-            headers:{},
-            body:formData,
-        })
-            .then((response)=>response.json())
+        HTTPBase.post('http://guangdiu.com/api/getlist.php',params)
             .then((responseData) => {
                 this.setState({
-                    dataSource:this.state.dataSource.cloneWithRows(responseData.data),
-                    loaded:true
+                    dataSource: this.state.dataSource.cloneWithRows(responseData.data),
+                    loaded:true,
                 });
-                if(resolve!==undefined){
-                    setTimeout(()=>{
+                if (resolve !== undefined){
+                    setTimeout(() => {
                         resolve();
-                    },1000);
-
+                    }, 1000);
                 }
+            })
+            .catch((error) => {
 
             })
-            .done()
+
     }
     //返回每一行cell的样式
     renderRow(rowData){
