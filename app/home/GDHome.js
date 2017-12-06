@@ -12,6 +12,7 @@ import {
     Dimensions,
     ListView,
     ActivityIndicator,
+    AsyncStorage,
 } from 'react-native';
 import {PullList} from 'react-native-pull';
 // 引用外部文件
@@ -30,6 +31,7 @@ export default class GDHome extends Component<{}> {
              dataSource:new ListView.DataSource({rowHasChanged:(r1,r2) =>r1 !==r2}),
              loaded:false,
          };
+           this.data=[];
            this.fetchData=this.fetchData.bind(this);
            this.loadMore=this.loadMore.bind(this);
        }
@@ -53,10 +55,12 @@ export default class GDHome extends Component<{}> {
         );
 
     }
+
     //返回中间按钮
     renderTitleItem(){
         return(
-            <TouchableOpacity>
+            <TouchableOpacity
+               >
                 <Image source={{uri:'navtitle_home_down_66x20'}} style={styles.navbarTitleItemStyle} />
             </TouchableOpacity>
         );
@@ -77,17 +81,28 @@ export default class GDHome extends Component<{}> {
     //网络请求
     fetchData(resolve){
         let params={"country" :"ch","count":"10"};
-        HTTPBase.post('http://guangdiu.com/api/getlist.php',params)
+        HTTPBase.get('https://guangdiu.com/api/getlist.php',params)
             .then((responseData) => {
+                // 清空数组
+                this.data = [];
+                //拼接数据
+                this.data=this.data.concat(responseData.data);
+                // 重新渲染
                 this.setState({
-                    dataSource: this.state.dataSource.cloneWithRows(responseData.data),
+                    dataSource: this.state.dataSource.cloneWithRows(this.data),
                     loaded:true,
                 });
+                // 关闭刷新动画
                 if (resolve !== undefined){
                     setTimeout(() => {
                         resolve();
                     }, 1000);
                 }
+                // 存储数组中最后一个元素的id
+                let lastID = responseData.data[responseData.data.length-1].id;
+                console.log(responseData.data);
+                AsyncStorage.setItem('lastID',lastID.toString());
+
             })
             .catch((error) => {
 
@@ -112,8 +127,36 @@ export default class GDHome extends Component<{}> {
             </View>
         );
     }
+    // 加载更多数据的网络请求
+    loadMoreData(value){
+        let params={
+            "country" :"ch",
+            "count":"10",
+            "sinceid":value};
+        HTTPBase.get('https://guangdiu.com/api/getlist.php',params)
+            .then((responseData) => {
+                //拼接数据
+                this.data=this.data.concat(responseData.data);
+                this.setState({
+                    dataSource: this.state.dataSource.cloneWithRows(this.data),
+                    loaded:true,
+                });
+                // 存储数组中最后一个元素的id
+                let lastID = responseData.data[responseData.data.length-1].id;
+                AsyncStorage.setItem('lastID',lastID.toString());
+
+            })
+            .catch((error) => {
+
+            })
+    }
     //下拉加载更多
     loadMore(){
+        //读取ID
+        AsyncStorage.getItem('lastID')
+            .then((value) => {
+                this.loadMoreData(value);
+            })
 
     }
     //listView
