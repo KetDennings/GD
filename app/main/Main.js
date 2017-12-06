@@ -6,16 +6,18 @@ import {
     StyleSheet,
     Text,
     View,
-    Image
+    Image,
+    AsyncStorage,
 } from 'react-native';
 //引用第三方框架
 import TabNavigator from 'react-native-tab-navigator';
 
 
 //引用外部文件
-import  GDHome from '../home/GDHome'
-import  GDHt from '../ht/GDHt'
-import  GDHourList from '../hourList/GDHourList'
+import  GDHome from '../home/GDHome';
+import  GDHt from '../ht/GDHt';
+import  GDHourList from '../hourList/GDHourList';
+import HTTPBase from '../http/HTTPBase';
 
 
 export default class Main extends Component<{}> {
@@ -24,17 +26,20 @@ export default class Main extends Component<{}> {
         super(props);
         // 初始状态
         this.state = {
-            selectedTab:'home'
+            selectedTab:'home',
+            cnbadgeText:'',
+            usbadgeText:'',
         };
 
       }
 
     // 返回TabBar的Item
-    renderTabBarItem(title, selectedTab, image, selectedImage, view ) {
+    renderTabBarItem(title, selectedTab, image, selectedImage, view ,badgeText) {
         return(
             <TabNavigator.Item
                 selected={this.state.selectedTab === selectedTab}
                 title={title}
+                badgeText={badgeText==0?'':badgeText}
                 selectedTitleStyle={{color:'black'}}
                 renderIcon={() => <Image source={{uri:image}} style={styles.tabbarIconStyle} />}
                 renderSelectedIcon={() => <Image source={{uri:selectedImage}} style={styles.tabbarIconStyle} />}
@@ -44,13 +49,44 @@ export default class Main extends Component<{}> {
         );
     }
 
+    componentDidMount() {
+        let cnfirstID=0;
+        let usfirstID=0;
+        //最新数据个数
+        setInterval(()=>{
+            //取出ID
+            AsyncStorage.getItem('cnfirstID')
+                .then((value)=>{
+                    cnfirstID=parseInt(value);
+                })
+            AsyncStorage.getItem('usfirstID')
+                .then((value)=>{
+                    usfirstID=parseInt(value);
+                })
+            if (cnfirstID!==0&&usfirstID !==0) {
+                //拼接参数
+                let params = {
+                    "cnmaxid": cnfirstID,
+                    "usmaxid": usfirstID,
+                }
+                HTTPBase.get('http://guangdiu.com/api/getnewitemcount.php', params)
+                    .then((reponseData)=> {
+                        console.log(reponseData);
+                        this.setState({
+                            cnbadgeText:reponseData.cn,
+                            usbadgeText:reponseData.us,
+                        })
+                    })
+            }
+        },3000)
+    }
     render() {
         return (
             <TabNavigator>
                 {/* 首页 */}
-                {this.renderTabBarItem("首页",'home','tabbar_home_30x30','tabbar_home_selected_30x30',<GDHome  navigator={this.props.navigator}/>)}
+                {this.renderTabBarItem("首页",'home','tabbar_home_30x30','tabbar_home_selected_30x30',<GDHome  navigator={this.props.navigator}/>,this.state.cnbadgeText)}
                 {/* 海淘 */}
-                {this.renderTabBarItem("海淘",'ht','tabbar_abroad_30x30','tabbar_abroad_selected_30x30',<GDHt  navigator={this.props.navigator}/>)}
+                {this.renderTabBarItem("海淘",'ht','tabbar_abroad_30x30','tabbar_abroad_selected_30x30',<GDHt  navigator={this.props.navigator}/>,this.state.usbadgeText)}
                 {/* 小时风云榜 */}
                 {this.renderTabBarItem("小时风云榜",'hourlist','tabbar_rank_30x30','tabbar_rank_selected_30x30',<GDHourList  navigator={this.props.navigator}/>)}
             </TabNavigator>

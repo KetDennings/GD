@@ -109,9 +109,11 @@ export default class GDHome extends Component<{}> {
                     }, 1000);
                 }
                 // 存储数组中最后一个元素的id
-                let lastID = responseData.data[responseData.data.length-1].id;
-                AsyncStorage.setItem('lastID',lastID.toString());
-
+                let cnlastID = responseData.data[responseData.data.length-1].id;
+                AsyncStorage.setItem('cnlastID',cnlastID.toString());
+                //存储数组中第一个元素的id
+                let cnfirstID=responseData.data[0].id;
+                AsyncStorage.setItem('cnfirstID',cnfirstID.toString());
             })
             .catch((error) => {
 
@@ -133,8 +135,8 @@ export default class GDHome extends Component<{}> {
                     loaded:true,
                 });
                 // 存储数组中最后一个元素的id
-                let lastID = responseData.data[responseData.data.length-1].id;
-                AsyncStorage.setItem('lastID',lastID.toString());
+                let cnlastID = responseData.data[responseData.data.length-1].id;
+                AsyncStorage.setItem('cnlastID',cnlastID.toString());
 
             })
             .catch((error) => {
@@ -144,7 +146,7 @@ export default class GDHome extends Component<{}> {
     //下拉加载更多
     loadMore(){
         //读取ID
-        AsyncStorage.getItem('lastID')
+        AsyncStorage.getItem('cnlastID')
             .then((value) => {
                 this.loadMoreData(value);
             })
