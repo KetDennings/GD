@@ -22,6 +22,7 @@ import GDSearch from './GDSearch';
 import GDNoDataView from '../main/GDNoDataView';
 import GDCommunalHotCeli from '../main/GDCommunalHotCeli';
 import HTTPBase from '../http/HTTPBase';
+import GDCommunalDetail from'../main/GDCommunalDetail'
 export default class GDHome extends Component<{}> {
      // 构造
        constructor(props) {
@@ -44,6 +45,15 @@ export default class GDHome extends Component<{}> {
     //跳转到搜索页面
     pushToSearch(){
         this.props.navigator.push({component:GDSearch})
+    }
+    //点击cell跳转到详情页
+    pushToDetail(value){
+        this.props.navigator.push({
+            component:GDCommunalDetail,
+            params:{
+                uri: 'https://guangdiu.com/api/showdetail.php' + '?' + 'id=' + value
+            }
+        })
     }
     //返回左边按钮
     renderLeftItem(){
@@ -100,7 +110,6 @@ export default class GDHome extends Component<{}> {
                 }
                 // 存储数组中最后一个元素的id
                 let lastID = responseData.data[responseData.data.length-1].id;
-                console.log(responseData.data);
                 AsyncStorage.setItem('lastID',lastID.toString());
 
             })
@@ -108,24 +117,6 @@ export default class GDHome extends Component<{}> {
 
             })
 
-    }
-    //返回每一行cell的样式
-    renderRow(rowData){
-        return(
-            <GDCommunalHotCeli
-                image={rowData.image}
-                title={rowData.title}
-            />
-        )
-    }
-    //listView的尾部
-    renderFooter() {
-
-        return (
-            <View style={{height: 100}}>
-                <ActivityIndicator />
-            </View>
-        );
     }
     // 加载更多数据的网络请求
     loadMoreData(value){
@@ -159,6 +150,31 @@ export default class GDHome extends Component<{}> {
             })
 
     }
+    //返回每一行cell的样式
+    renderRow(rowData){
+        return(
+            <TouchableOpacity
+                onPress={()=>{
+                this.pushToDetail(rowData.id)
+
+            }}>
+                <GDCommunalHotCeli
+                    image={rowData.image}
+                    title={rowData.title}
+                />
+            </TouchableOpacity>
+        )
+    }
+    //listView的尾部
+    renderFooter() {
+
+        return (
+            <View style={{height: 100}}>
+                <ActivityIndicator />
+            </View>
+        );
+    }
+
     //listView
     renderListView(){
         if (this.state.loaded ===false) {
@@ -167,10 +183,10 @@ export default class GDHome extends Component<{}> {
             );
         }else{
             return(
-                <PullList
+                <PullList navigator={this.props.navigator}
                     onPullRelease={(resolve)=>this.fetchData(resolve)}
                     dataSource={this.state.dataSource}
-                    renderRow={this.renderRow}
+                    renderRow={this.renderRow.bind(this)}
                     onEndReached={this.loadMore}
                     onEndReachedThreshold={60}
                     renderFooter={this.renderFooter}

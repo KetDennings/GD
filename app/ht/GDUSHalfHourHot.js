@@ -1,5 +1,5 @@
 /**
- * Created by admin on 2017/10/24.
+ * Created by admin on 2017/12/6.
  */
 import React, { Component } from 'react';
 import {
@@ -21,21 +21,24 @@ import GDNoDataView from '../main/GDNoDataView';
 import HTTPBase from '../http/HTTPBase';
 import GDCommunalDetail from'../main/GDCommunalDetail'
 const {width,height} =Dimensions.get('window');
-export default class GDHalfHourHot extends Component<{}> {
+export default class GDUSHalfHourHot extends Component<{}> {
 
     // 构造
-      constructor(props) {
+    constructor(props) {
         super(props);
         // 初始状态
         this.state = {
             dataSource:new ListView.DataSource({rowHasChanged:(r1,r2) =>r1 !==r2}),
             loaded:false,
         };
-          this.fetchData=this.fetchData.bind(this);
-      }
+        this.fetchData=this.fetchData.bind(this);
+    }
     //网络请求
     fetchData(resolve){
-        HTTPBase.get('http://guangdiu.com/api/gethots.php')
+        let params = {
+            "c" : "us"
+        };
+        HTTPBase.get('http://guangdiu.com/api/gethots.php',params)
             .then((responseData) => {
                 this.setState({
                     dataSource: this.state.dataSource.cloneWithRows(responseData.data),
@@ -65,10 +68,10 @@ export default class GDHalfHourHot extends Component<{}> {
             <TouchableOpacity onPress={()=>{
             this.pushToDetail(rowData.id)
             }}>
-            <GDCommunalHotCeli
-            image={rowData.image}
-            title={rowData.title}
-        /></TouchableOpacity>
+                <GDCommunalHotCeli
+                    image={rowData.image}
+                    title={rowData.title}
+                /></TouchableOpacity>
         )
     }
     //返回listView的头部
@@ -88,7 +91,7 @@ export default class GDHalfHourHot extends Component<{}> {
     //返回中间按钮
     renderTitleItem(){
         return(
-                <Text  style={styles.navbarTitleItemStyle} >近半小时热门</Text>
+            <Text  style={styles.navbarTitleItemStyle} >近半小时热门</Text>
         );
     }
     //返回右边按钮
@@ -99,23 +102,23 @@ export default class GDHalfHourHot extends Component<{}> {
             </TouchableOpacity>
         );
     }
-   renderListView(){
-       if (this.state.loaded ===false) {
-           return(
-             <GDNoDataView />
-           );
-       }else{
-           return(
-               <PullList navigator={this.props.navigator}
-                   onPullRelease={(resolve)=>this.fetchData(resolve)}
-                   dataSource={this.state.dataSource}
-                   renderRow={this.renderRow.bind(this)}
-                   renderHeader={this.renderHeader}
-               />
-           );
-       }
+    renderListView(){
+        if (this.state.loaded ===false) {
+            return(
+                <GDNoDataView />
+            );
+        }else{
+            return(
+                <PullList navigator={this.props.navigator}
+                          onPullRelease={(resolve)=>this.fetchData(resolve)}
+                          dataSource={this.state.dataSource}
+                          renderRow={this.renderRow.bind(this)}
+                          renderHeader={this.renderHeader}
+                />
+            );
+        }
 
-   }
+    }
 
     render() {
         return (
@@ -158,3 +161,4 @@ const styles = StyleSheet.create({
         alignItems:'center',
     },
 });
+
