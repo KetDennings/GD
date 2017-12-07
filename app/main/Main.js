@@ -17,7 +17,7 @@ import TabNavigator from 'react-native-tab-navigator';
 import  GDHome from '../home/GDHome';
 import  GDHt from '../ht/GDHt';
 import  GDHourList from '../hourList/GDHourList';
-import HTTPBase from '../http/HTTPBase';
+import HTTP from '../http/HTTPBase';
 
 
 export default class Main extends Component<{}> {

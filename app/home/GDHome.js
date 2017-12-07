@@ -21,7 +21,7 @@ import GDHalfHourHot from './GDHalfHourHot';
 import GDSearch from './GDSearch';
 import GDNoDataView from '../main/GDNoDataView';
 import GDCommunalHotCeli from '../main/GDCommunalHotCeli';
-import HTTPBase from '../http/HTTPBase';
+import HTTP from '../http/HTTPBase';
 import GDCommunalDetail from'../main/GDCommunalDetail'
 export default class GDHome extends Component<{}> {
      // 构造

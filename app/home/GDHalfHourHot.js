@@ -18,7 +18,7 @@ import {PullList} from 'react-native-pull';
 import GDCommunalNavBar from '../main/GDCommunalNavBar';
 import GDCommunalHotCeli from '../main/GDCommunalHotCeli';
 import GDNoDataView from '../main/GDNoDataView';
-import HTTPBase from '../http/HTTPBase';
+import HTTP from '../http/HTTPBase';
 import GDCommunalDetail from'../main/GDCommunalDetail'
 const {width,height} =Dimensions.get('window');
 export default class GDHalfHourHot extends Component<{}> {

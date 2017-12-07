@@ -21,7 +21,7 @@ import GDUSHalfHourHot from './GDUSHalfHourHot';
 import GDSearch from '../home/GDSearch';
 import GDNoDataView from '../main/GDNoDataView';
 import GDCommunalHotCeli from '../main/GDCommunalHotCeli';
-import HTTPBase from '../http/HTTPBase';
+import HTTP from '../http/HTTPBase';
 import GDCommunalDetail from'../main/GDCommunalDetail'
 export default class GDHt extends Component<{}> {
 
