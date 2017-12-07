@@ -21,7 +21,6 @@ import GDHalfHourHot from './GDHalfHourHot';
 import GDSearch from './GDSearch';
 import GDNoDataView from '../main/GDNoDataView';
 import GDCommunalHotCeli from '../main/GDCommunalHotCeli';
-import HTTP from '../http/HTTPBase';
 import GDCommunalDetail from'../main/GDCommunalDetail'
 export default class GDHome extends Component<{}> {
      // 构造
@@ -114,8 +113,11 @@ export default class GDHome extends Component<{}> {
                 //存储数组中第一个元素的id
                 let cnfirstID=responseData.data[0].id;
                 AsyncStorage.setItem('cnfirstID',cnfirstID.toString());
+                //存储数据到本地
+
             })
             .catch((error) => {
+                // 拿到本地存储的数据,展示出来,如果没有存储,那就显示无数据页面
 
             })
 

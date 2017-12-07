@@ -18,7 +18,7 @@ import  GDHome from '../home/GDHome';
 import  GDHt from '../ht/GDHt';
 import  GDHourList from '../hourList/GDHourList';
 import HTTP from '../http/HTTPBase';
-
+import RealmStorage from '../storage/realmStorage';
 
 export default class Main extends Component<{}> {
     // 构造
