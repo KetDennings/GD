@@ -12,18 +12,17 @@ import {
 } from 'react-native';
 import PropTypes from 'prop-types';
 const {width,height} =Dimensions.get('window');
-export default class GDCommunalCeli extends Component<{}> {
+export default class GDCommunalHotCell extends Component<{}> {
     static propTypes={
         image:PropTypes.string,
         title:PropTypes.string,
-
     }
 
     render() {
         return (
             <View style={styles.container}>
                 {/* 左边图片*/}
-                <Image source={{uri:this.props.image}} style={styles.imageStyle}/>
+                <Image source={{uri:this.props.image ===''?'defaullt_thumb_83x83':this.props.image}} style={styles.imageStyle}/>
                 {/*中间的文字*/}
                 <View>
                     <Text numberOfLines={3} style={styles.titleStyle}>{this.props.title}</Text>

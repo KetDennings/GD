@@ -18,7 +18,7 @@ import  GDHome from '../home/GDHome';
 import  GDHt from '../ht/GDHt';
 import  GDHourList from '../hourList/GDHourList';
 import HTTP from '../http/HTTPBase';
-import RealmStorage from '../storage/realmStorage';
+//import RealmStorage from '../storage/realmStorage';
 
 export default class Main extends Component<{}> {
     // 构造
@@ -77,8 +77,11 @@ export default class Main extends Component<{}> {
                             usbadgeText:reponseData.us,
                         })
                     })
+                .catch((error)=>{
+
+                })
             }
-        },3000)
+        },60000)
     }
     render() {
         return (

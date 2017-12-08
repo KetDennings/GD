@@ -16,7 +16,7 @@ import {
 import {PullList} from 'react-native-pull';
 // 引用外部文件
 import GDCommunalNavBar from '../main/GDCommunalNavBar';
-import GDCommunalHotCeli from '../main/GDCommunalHotCeli';
+import GDCommunalHotCell from '../main/GDCommunalHotCell';
 import GDNoDataView from '../main/GDNoDataView';
 
 import GDCommunalDetail from'../main/GDCommunalDetail'
@@ -65,7 +65,7 @@ export default class GDHalfHourHot extends Component<{}> {
             <TouchableOpacity onPress={()=>{
             this.pushToDetail(rowData.id)
             }}>
-            <GDCommunalHotCeli
+            <GDCommunalHotCell
             image={rowData.image}
             title={rowData.title}
         /></TouchableOpacity>

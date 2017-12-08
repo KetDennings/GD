@@ -20,7 +20,7 @@ import GDCommunalNavBar from '../main/GDCommunalNavBar';
 import GDHalfHourHot from './GDHalfHourHot';
 import GDSearch from './GDSearch';
 import GDNoDataView from '../main/GDNoDataView';
-import GDCommunalHotCeli from '../main/GDCommunalHotCeli';
+import GDCommunalCell from '../main/GDCommunalCell';
 import GDCommunalDetail from'../main/GDCommunalDetail'
 export default class GDHome extends Component<{}> {
      // 构造
@@ -113,12 +113,19 @@ export default class GDHome extends Component<{}> {
                 //存储数组中第一个元素的id
                 let cnfirstID=responseData.data[0].id;
                 AsyncStorage.setItem('cnfirstID',cnfirstID.toString());
-                //存储数据到本地
-
+                ////删除本地数据
+                //RealmBase.removeAllData('HomeData');
+                ////存储数据到本地
+                //RealmBase.create('HomeData',responseData.data);
             })
             .catch((error) => {
-                // 拿到本地存储的数据,展示出来,如果没有存储,那就显示无数据页面
-
+                //// 拿到本地存储的数据,展示出来,如果没有存储,那就显示无数据页面
+                //this.data=RealmBase.loadAll('HomeData');
+                ////重新渲染
+                //this.setState({
+                //    dataSource: this.state.dataSource.cloneWithRows(this.data),
+                //    loaded:true,
+                //});
             })
 
     }
@@ -162,9 +169,12 @@ export default class GDHome extends Component<{}> {
                 this.pushToDetail(rowData.id)
 
             }}>
-                <GDCommunalHotCeli
+                <GDCommunalCell
                     image={rowData.image}
                     title={rowData.title}
+                    mall={rowData.mall}
+                    fromsite={rowData.fromsite}
+                    pubtime={rowData.pubtime}
                 />
             </TouchableOpacity>
         )

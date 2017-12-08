@@ -20,7 +20,7 @@ import GDCommunalNavBar from '../main/GDCommunalNavBar';
 import GDUSHalfHourHot from './GDUSHalfHourHot';
 import GDSearch from '../home/GDSearch';
 import GDNoDataView from '../main/GDNoDataView';
-import GDCommunalHotCeli from '../main/GDCommunalHotCeli';
+import GDCommunalCell from '../main/GDCommunalCell';
 
 import GDCommunalDetail from'../main/GDCommunalDetail'
 export default class GDHt extends Component<{}> {
@@ -161,9 +161,12 @@ export default class GDHt extends Component<{}> {
                 this.pushToDetail(rowData.id)
 
             }}>
-                <GDCommunalHotCeli
+                <GDCommunalCell
                     image={rowData.image}
                     title={rowData.title}
+                    mall={rowData.mall}
+                    fromsite={rowData.fromsite}
+                    pubtime={rowData.pubtime}
                 />
             </TouchableOpacity>
         )
