@@ -11,18 +11,18 @@ import {
     Image,
     Dimensions,
     ListView,
-    ActivityIndicator,
-    AsyncStorage,
 } from 'react-native';
+
 import {PullList} from 'react-native-pull';
 // 引用外部文件
 import GDCommunalNavBar from '../main/GDCommunalNavBar';
-import GDNoDataView from '../main/GDNoDataView';
 import GDCommunalCell from '../main/GDCommunalCell';
+import GDNoDataView from '../main/GDNoDataView';
+import GDSettings from './GDSettings';
 import GDCommunalDetail from'../main/GDCommunalDetail';
-import GDSettings from  './GDSettings';
 const {width,height} =Dimensions.get('window');
 export default class GDHourList extends Component<{}> {
+
     // 构造
     constructor(props) {
         super(props);
@@ -30,83 +30,58 @@ export default class GDHourList extends Component<{}> {
         this.state = {
             dataSource:new ListView.DataSource({rowHasChanged:(r1,r2) =>r1 !==r2}),
             loaded:false,
+            txt:""
         };
-        this.loadData=this.loadData.bind(this);
+        this.lasthourhour='';
+        this.lasthourdate='';
+        this.nexthourhour='';
+        this.nexthourdate='';
+        this.fetchData=this.fetchData.bind(this);
     }
-    //跳转到设置页面
-    pushToSettings(){
-        this.props.navigator.push({component:GDSettings})
+    //网络请求
+    fetchData(resolve,date,hour){
+        let params;
+        if (date!== undefined){
+            params={
+                "date":date,
+                "hour":hour
+            }
+        }
+        HTTPBase.get('http://guangdiu.com/api/getranklist.php',params)
+            .then((responseData) => {
+                this.setState({
+                    dataSource: this.state.dataSource.cloneWithRows(responseData.data),
+                    loaded:true,
+                    txt:responseData.displaydate+responseData.rankhour+"点档("+responseData.rankdate+")"
+                });
+                this.nexthourhour=responseData.nexthourhour;
+                this.nexthourdate=responseData.nexthourdate;
+                this.lasthourhour=responseData.lasthourhour;
+                this.lasthourdate=responseData.lasthourdate;
+
+                if (resolve !== undefined){
+                    setTimeout(() => {
+                        resolve();  // 关闭动画
+                    }, 1000);
+                }
+            })
+            .catch((error) => {
+
+            })
     }
-    //点击cell跳转到详情页
     pushToDetail(value){
         this.props.navigator.push({
             component:GDCommunalDetail,
             params:{
-                uri: 'https://guangdiu.com/api/showdetail.php' + '?' + 'id=' + value
+                uri:'https://guangdiu.com/api/showdetail.php' + '?' + 'id=' + value
             }
         })
     }
-    //返回中间按钮
-    renderTitleItem(){
-        return(
-                <Image source={{uri:'navtitle_rank_107x20'}} style={styles.navbarTitleItemStyle} />
-        );
-    }
-    //返回右边按钮
-    renderRightItem(){
-        return(
-            <TouchableOpacity
-                onPress={()=>{
-                this.pushToSettings()
-                }}>
-                <Text style={styles.navbarRightItemStyle}>设置</Text>
-            </TouchableOpacity>
-        );
-    }
-    componentDidMount() {
-        this.loadData();
-    }
-    //网络请求
-    loadData(resolve){
-        let params={"country" :"ch","count":"10"};
-        HTTPBase.get('https://guangdiu.com/api/getranklist.php')
-            .then((responseData) => {
-
-                // 重新渲染
-                this.setState({
-                    dataSource: this.state.dataSource.cloneWithRows(responseData.data),
-                    loaded:true,
-                });
-                // 关闭刷新动画
-                if (resolve !== undefined){
-                    setTimeout(() => {
-                        resolve();
-                    }, 1000);
-                }
-                ////删除本地数据
-                //RealmBase.removeAllData('HomeData');
-                ////存储数据到本地
-                //RealmBase.create('HomeData',responseData.data);
-            })
-            .catch((error) => {
-                //// 拿到本地存储的数据,展示出来,如果没有存储,那就显示无数据页面
-                //this.data=RealmBase.loadAll('HomeData');
-                ////重新渲染
-                //this.setState({
-                //    dataSource: this.state.dataSource.cloneWithRows(this.data),
-                //    loaded:true,
-                //});
-            })
-
-    }
-
     //返回每一行cell的样式
     renderRow(rowData){
         return(
-            <TouchableOpacity
-                onPress={()=>{
-                this.pushToDetail(rowData.id)
-
+            <TouchableOpacity onPress={()=>{
+            this.pushToDetail(rowData.id)
             }}>
                 <GDCommunalCell
                     image={rowData.image}
@@ -114,11 +89,32 @@ export default class GDHourList extends Component<{}> {
                     mall={rowData.mall}
                     fromsite={rowData.fromsite}
                     pubtime={rowData.pubtime}
-                />
-            </TouchableOpacity>
+                /></TouchableOpacity>
         )
     }
-    //listView
+
+    componentDidMount() {
+        this.fetchData();
+    }
+    pushToSettings() {
+        this.props.navigator.push({
+            component:GDSettings
+        });
+    }
+    //返回中间按钮
+    renderTitleItem(){
+        return(
+            <Image source={{uri:'navtitle_rank_107x20'}} style={styles.navbarTitleItemStyle} />
+        );
+    }
+    //返回右边按钮
+    renderRightItem(){
+        return(
+            <TouchableOpacity onPress={()=>this.pushToSettings()}>
+                <Text style={styles.navbarRightItemStyle} >设置</Text>
+            </TouchableOpacity>
+        );
+    }
     renderListView(){
         if (this.state.loaded ===false) {
             return(
@@ -130,9 +126,17 @@ export default class GDHourList extends Component<{}> {
                           onPullRelease={(resolve)=>this.fetchData(resolve)}
                           dataSource={this.state.dataSource}
                           renderRow={this.renderRow.bind(this)}
+
                 />
             );
         }
+
+    }
+    lastHour(){
+        this.fetchData(undefined,this.lasthourdate,this.lasthourhour)
+    }
+    nextHour(){
+        this.fetchData(undefined,this.nexthourdate,this.nexthourhour)
     }
     render() {
         return (
@@ -142,22 +146,24 @@ export default class GDHourList extends Component<{}> {
                     titleItem = {() => this.renderTitleItem()}
                     rightItem = {() => this.renderRightItem()}
                 />
-                {/*提醒栏*/}
+                {/* 提醒栏 */}
                 <View style={styles.promptViewStyle}>
-                    <Text>提示栏</Text>
+                    <Text>{this.state.txt}</Text>
                 </View>
                 {/*根据网络状态决定是否渲染listView*/}
                 {this.renderListView()}
-                {/*操作栏*/}
+                {/* 操作栏 */}
                 <View style={styles.operationViewStyle}>
-                    <TouchableOpacity>
-                        <Text style={{marginRight:10,fontSize:17,color:'green'}}>
-                            {"< " + "上1小时"}</Text>
+                    <TouchableOpacity
+                        onPress={() => this.lastHour()}
+                    >
+                        <Text style={{marginRight:10, fontSize:17, color:'green'}}>{"< " + "上1小时"}</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity>
-                        <Text style={{marginLeft:10,fontSize:17,color:'green'}}>
-                            {"下1小时"+" >"}</Text>
+                    <TouchableOpacity
+                        onPress={() => this.nextHour()}
+                    >
+                        <Text style={{marginLeft:10, fontSize:17, color:'green'}}>{"下1小时" + " >"}</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -170,32 +176,37 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: 'white',
     },
+
     navbarTitleItemStyle:{
         width:107,
         height:20,
         marginLeft:50,
     },
     navbarRightItemStyle:{
-        height:25,
+        fontSize:17,
+        color:'green',
         marginRight:15,
-        fontSize:18,
-        color:'green'
     },
-    promptViewStyle:{
+    headerPromptStyle:{
+        width:width,
+        height:44,
+        backgroundColor:'rgba(239,239,239,0.5)',
+        justifyContent:'center',
+        alignItems:'center',
+    },
+    promptViewStyle: {
         width:width,
         height:44,
         alignItems:'center',
         justifyContent:'center',
         backgroundColor:'rgba(251,251,251,1.0)',
     },
-    operationViewStyle:{
+
+    operationViewStyle: {
         width:width,
         height:44,
         flexDirection:'row',
-        alignItems:'center',
         justifyContent:'center',
+        alignItems:'center',
     },
-
-
-
 });
