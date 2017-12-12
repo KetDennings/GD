@@ -13,6 +13,7 @@ import {
     ListView,
     ActivityIndicator,
     AsyncStorage,
+    Modal,
 } from 'react-native';
 import {PullList} from 'react-native-pull';
 // 引用外部文件
@@ -21,7 +22,10 @@ import GDHalfHourHot from './GDHalfHourHot';
 import GDSearch from './GDSearch';
 import GDNoDataView from '../main/GDNoDataView';
 import GDCommunalCell from '../main/GDCommunalCell';
-import GDCommunalDetail from'../main/GDCommunalDetail'
+import GDCommunalDetail from'../main/GDCommunalDetail';
+import CommunalSift from '../main/GDCommunalSift';
+//数据
+import HomeSiftData from '../data/HomeSiftData.json';
 export default class GDHome extends Component<{}> {
      // 构造
        constructor(props) {
@@ -30,6 +34,7 @@ export default class GDHome extends Component<{}> {
          this.state = {
              dataSource:new ListView.DataSource({rowHasChanged:(r1,r2) =>r1 !==r2}),
              loaded:false,
+             isSiftModal:false,
          };
            this.data=[];
            this.fetchData=this.fetchData.bind(this);
@@ -48,6 +53,12 @@ export default class GDHome extends Component<{}> {
             params:{
                 name:'首页'
             }
+        })
+    }
+    //显示筛选菜单
+    showSiftMenu(){
+        this.setState({
+            isSiftModal:true,
         })
     }
     //点击cell跳转到详情页
@@ -74,6 +85,7 @@ export default class GDHome extends Component<{}> {
     renderTitleItem(){
         return(
             <TouchableOpacity
+                onPress={()=>this.showSiftMenu()}
                >
                 <Image source={{uri:'navtitle_home_down_66x20'}} style={styles.navbarTitleItemStyle} />
             </TouchableOpacity>
@@ -92,7 +104,43 @@ export default class GDHome extends Component<{}> {
     componentDidMount() {
         this.fetchData();
     }
-    //网络请求
+
+    //筛选网络请求
+    loadSiftData(mall,cate){
+
+        let params={};
+        if (mall === ""&&cate===""){
+            this.fetchData();
+            return;
+        }
+        if (mall === ""){
+            params ={"country" :"ch","count":"10","cate":cate}
+        }
+        if (cate===""){
+            params ={"country" :"ch","count":"10","mall":mall}
+        }
+        HTTPBase.get('https://guangdiu.com/api/getlist.php',params)
+            .then((responseData) => {
+                // 清空数组
+                this.data = [];
+                //拼接数据
+                this.data=this.data.concat(responseData.data);
+                // 重新渲染
+                this.setState({
+                    dataSource: this.state.dataSource.cloneWithRows(this.data),
+                    loaded:true,
+                });
+
+                // 存储数组中最后一个元素的id
+                let cnlastID = responseData.data[responseData.data.length-1].id;
+                AsyncStorage.setItem('cnlastID',cnlastID.toString());
+                })
+            .catch((error) => {
+
+            })
+
+    }
+    //首页网络请求
     fetchData(resolve){
         let params={"country" :"ch","count":"10"};
         HTTPBase.get('https://guangdiu.com/api/getlist.php',params)
@@ -213,10 +261,36 @@ export default class GDHome extends Component<{}> {
             );
         }
     }
+    // 关闭模态
+    closeModal(data) {
+        this.setState({
+            isSiftModal:data,
+        })
+    }
+    onRequestClose() {
+        this.setState({
+            isSiftModal:false
+        });
+    }
     render() {
 
         return (
             <View style={styles.container}>
+                {/*筛选菜单*/}
+                <Modal
+                    animationType='none'           // 没有动画
+                    transparent={true}             // 透明
+                    visible={this.state.isSiftModal}    // 根据isSiftModal决定是否显示
+                    onRequestClose={() => {this.onRequestClose()}}  // android必须实现
+                >
+                    <CommunalSift
+                        removeModal={(data)=>this.closeModal(data)}
+                        data={HomeSiftData}
+                        loadSiftData={(mall,cate)=>this.loadSiftData(mall,cate)}
+                    />
+                </Modal>
+
+
                 {/* 导航栏样式 */}
                 <GDCommunalNavBar
                     leftItem = {() => this.renderLeftItem()}
