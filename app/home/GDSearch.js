@@ -38,6 +38,10 @@ export default class GDSearch extends Component<{}> {
         this.fetchData=this.fetchData.bind(this);
         this.loadMore=this.loadMore.bind(this);
     }
+    static propTypes={
+        name:PropTypes.string,
+
+    }
     _pressBackButton(){
         // 回收键盘
         dismissKeyboard();
@@ -59,7 +63,7 @@ export default class GDSearch extends Component<{}> {
                 onPress={() =>{this._pressBackButton()}}>
                 <View style={{flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
                 <Image source={{uri:'back'}} style={styles.navbarLeftItemStyle}/>
-                <Text  style={{color:'green'}}>首页</Text>
+                <Text  style={{color:'green'}}>{this.props.name}</Text>
                 </View>
             </TouchableOpacity>
         );

@@ -9,10 +9,13 @@ import {
     View,
     TouchableOpacity,
     Image,
+    ScrollView,
+    Dimensions
 } from 'react-native';
 // 引用外部文件
-
+const {width,height} =Dimensions.get('window');
 import GDCommunalNavBar from '../main/GDCommunalNavBar';
+import GDSettingsCell from './GDSettingsCell';
 import PropTypes from 'prop-types';
 export default class GDSettings extends Component<{}> {
 
@@ -24,7 +27,11 @@ export default class GDSettings extends Component<{}> {
         return(
             <TouchableOpacity
                 onPress={() =>{this._pressBackButton()}}>
-                <Text  style={styles.navbarLeftItemStyle} >小时风云榜</Text>
+                <View style={{flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
+                    <Image source={{uri:'back'}} style={styles.navbarLeftItemStyle}/>
+                    <Text  style={{color:'green'}}>小时风云榜</Text>
+                </View>
+
             </TouchableOpacity>
         );
 
@@ -46,9 +53,17 @@ export default class GDSettings extends Component<{}> {
                     leftItem = {() => this.renderLeftItem()}
                     titleItem = {() => this.renderTitleItem()}
                 />
-                <View>
-
-                </View>
+                {/*内容*/}
+                <ScrollView style={styles.scrollViewStyle}>
+                    <GDSettingsCell
+                        leftTitle="淘宝天猫快捷下单"
+                        isShowSwitch={true}
+                    />
+                    <GDSettingsCell
+                        leftTitle="清除图片缓存"
+                        isShowSwitch={false}
+                    />
+                </ScrollView>
             </View>
         );
     }
@@ -60,14 +75,19 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: 'pink',
     },
+    scrollViewStyle:{
+        backgroundColor:'white',
+        width:width,
+    },
     navbarLeftItemStyle:{
         width:20,
         height:20,
         marginLeft:15,
     },
     navbarTitleItemStyle:{
-        width:66,
-        height:20,
+        fontSize:17,
+        color:'black',
+        marginRight:90
     },
 
 

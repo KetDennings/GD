@@ -45,7 +45,12 @@ export default class GDHt extends Component<{}> {
     }
     //跳转到搜索页面
     pushToSearch(){
-        this.props.navigator.push({component:GDSearch})
+        this.props.navigator.push({
+            component:GDSearch,
+            params:{
+                name:'海淘'
+            }
+        })
     }
     //点击cell跳转到详情页
     pushToDetail(value){
