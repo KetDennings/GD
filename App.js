@@ -29,7 +29,7 @@ export default class App extends Component<{}> {
             initialRoute={{ name: defaultName, component: defaultComponent }}
             configureScene={(route) => {
             //跳转的动画
-            return Navigator.SceneConfigs.FadeAndroid;
+            return Navigator.SceneConfigs.FloatFromLeft;
           }}
             renderScene={(route, navigator) => {
             let Component = route.component;

@@ -8,6 +8,7 @@ import {
     View,
     WebView,
     TouchableOpacity,
+    Image,
 } from 'react-native';
 import PropTypes from 'prop-types';
 //引入外部文件
@@ -23,9 +24,20 @@ export default class GDCommunalDetail extends Component<{}> {
                 onPress={()=>{
                     this.props.navigator.pop();
                 }}>
-                <Text>返回</Text>
+                <View style={{flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
+                    <Image source={{uri:'back'}} style={styles.navbarLeftItemStyle}/>
+                    <Text  style={{color:'green'}}>返回</Text>
+                </View>
             </TouchableOpacity>
         )
+    }
+    //返回中间按钮
+    renderTitleItem(){
+        return(
+
+            <Text  style={styles.navbarTitleItemStyle} >商品详情</Text>
+
+        );
     }
     render(){
         return (
@@ -33,6 +45,7 @@ export default class GDCommunalDetail extends Component<{}> {
                 {/*导航栏*/}
                 <GDCommunalNavBar
                     leftItem={()=>this.renderLeftItem()}
+                    titleItem = {() => this.renderTitleItem()}
                 />
                 {/*初始化*/}
                 <WebView style={styles.webStyle}
@@ -53,5 +66,15 @@ const styles=StyleSheet.create({
     },
     webStyle:{
         flex:1,
-    }
+    },
+    navbarLeftItemStyle:{
+        width:20,
+        height:20,
+        marginLeft:15,
+    },
+    navbarTitleItemStyle:{
+        fontSize:17,
+        color:'black',
+        marginRight:90
+    },
 });

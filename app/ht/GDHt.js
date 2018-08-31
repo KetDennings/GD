@@ -14,9 +14,13 @@ import {
     ActivityIndicator,
     AsyncStorage,
     Modal,
+    DeviceEventEmitter,
+    InteractionManager,
+    Animated,
 } from 'react-native';
 // 引用外部文件
 import {PullList} from 'react-native-pull';
+import PropTypes from 'prop-types';
 import GDCommunalNavBar from '../main/GDCommunalNavBar';
 import GDUSHalfHourHot from './GDUSHalfHourHot';
 import GDSearch from '../home/GDSearch';
@@ -27,7 +31,9 @@ import GDCommunalDetail from'../main/GDCommunalDetail';
 //数据
 import HtSiftData from '../data/HTSiftData.json';
 export default class GDHt extends Component<{}> {
-
+    static defaultProps={
+        loadDataNumber:{},//回调
+    };
     // 构造
     constructor(props) {
         super(props);
@@ -41,20 +47,44 @@ export default class GDHt extends Component<{}> {
         this.fetchData=this.fetchData.bind(this);
         this.loadMore=this.loadMore.bind(this);
     }
+    //点击了item
+    clickTabBarItem(){
+        let  PullList=this.refs.pullList;
+        if (PullList.scroll.scrollProperties.offset>0){//不在顶部
+            PullList.scrollTo({y:0})
+        }else{//在顶部，下拉刷新
+            //执行下拉刷新操作
+            PullList.state.pullPan=new Animated.ValueXY({x:0,y:this.topIndicatorHeight *-1});
+            //加载最新数据
+            this.fetchData();
+            //关闭动画
+            setTimeout(()=>{
+                PullList.resetDefaultXYHandler();
+            },1000);
+        }
+    }
     //跳转到半小时热门
     pushToHalfHourHot(){
-        this.props.navigator.push({
-            component:GDUSHalfHourHot
-        })
+        InteractionManager.runAfterInteractions(() => {
+            // ...耗时较长的同步的任务...
+            this.props.navigator.push({
+                component:GDUSHalfHourHot
+            })
+        });
+
     }
     //跳转到搜索页面
     pushToSearch(){
-        this.props.navigator.push({
-            component:GDSearch,
-            params:{
-                name:'海淘'
-            }
-        })
+        InteractionManager.runAfterInteractions(() => {
+            // ...耗时较长的同步的任务...
+            this.props.navigator.push({
+                component:GDSearch,
+                params:{
+                    name:'海淘'
+                }
+            })
+        });
+
     }
     //显示筛选菜单
     showSiftMenu(){
@@ -64,12 +94,16 @@ export default class GDHt extends Component<{}> {
     }
     //点击cell跳转到详情页
     pushToDetail(value){
-        this.props.navigator.push({
-            component:GDCommunalDetail,
-            params:{
-                uri: 'https://guangdiu.com/api/showdetail.php' + '?' + 'id=' + value
-            }
-        })
+        InteractionManager.runAfterInteractions(() => {
+            // ...耗时较长的同步的任务...
+            this.props.navigator.push({
+                component:GDCommunalDetail,
+                params:{
+                    uri: 'https://guangdiu.com/api/showdetail.php' + '?' + 'id=' + value
+                }
+            })
+        });
+
     }
     //返回左边按钮
     renderLeftItem(){
@@ -104,6 +138,16 @@ export default class GDHt extends Component<{}> {
     }
     componentDidMount() {
         this.fetchData();
+        //注册通知
+        this.subscription = DeviceEventEmitter.addListener('clickHTItem', () => this.clickTabBarItem());
+    }
+    componentWillUnmount() {
+        // 注销通知
+        this.subscription.remove();
+    }
+    //获取最新数据个数
+    loadDataNumber(){
+        this.props.loadDataNumber();
     }
     //筛选网络请求
     loadSiftData(mall,cate){
@@ -160,6 +204,8 @@ export default class GDHt extends Component<{}> {
                         resolve();
                     }, 1000);
                 }
+                //获取最新数据个数
+                this.loadDataNumber();
                 // 存储数组中最后一个元素的id
                 let uslastID = responseData.data[responseData.data.length-1].id;
                 AsyncStorage.setItem('uslastID',uslastID.toString());
@@ -240,13 +286,15 @@ export default class GDHt extends Component<{}> {
             );
         }else{
             return(
-                <PullList navigator={this.props.navigator}
+                <PullList ref="pullList"
+                    navigator={this.props.navigator}
                           onPullRelease={(resolve)=>this.fetchData(resolve)}
                           dataSource={this.state.dataSource}
                           renderRow={this.renderRow.bind(this)}
                           onEndReached={this.loadMore}
                           onEndReachedThreshold={60}
                           renderFooter={this.renderFooter}
+                          removeClippedSubviews={true}
                 />
             );
         }

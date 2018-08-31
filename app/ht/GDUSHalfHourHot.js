@@ -11,6 +11,7 @@ import {
     Image,
     Dimensions,
     ListView,
+    InteractionManager,
 } from 'react-native';
 
 import {PullList} from 'react-native-pull';
@@ -55,12 +56,15 @@ export default class GDUSHalfHourHot extends Component<{}> {
             })
     }
     pushToDetail(value){
-        this.props.navigator.push({
-            component:GDCommunalDetail,
-            params:{
-                uri:'https://guangdiu.com/api/showdetail.php' + '?' + 'id=' + value
-            }
-        })
+        InteractionManager.runAfterInteractions(() => {
+            this.props.navigator.push({
+                component:GDCommunalDetail,
+                params:{
+                    uri:'https://guangdiu.com/api/showdetail.php' + '?' + 'id=' + value
+                }
+            })
+        });
+
     }
     //返回每一行cell的样式
     renderRow(rowData){

@@ -11,6 +11,7 @@ import {
     Image,
     Dimensions,
     ListView,
+    InteractionManager,
 } from 'react-native';
 
 import {PullList} from 'react-native-pull';
@@ -30,7 +31,8 @@ export default class GDHourList extends Component<{}> {
         this.state = {
             dataSource:new ListView.DataSource({rowHasChanged:(r1,r2) =>r1 !==r2}),
             loaded:false,
-            txt:""
+            txt:"",
+            isNextTouch:false,
         };
         this.lasthourhour='';
         this.lasthourdate='';
@@ -49,11 +51,18 @@ export default class GDHourList extends Component<{}> {
         }
         HTTPBase.get('http://guangdiu.com/api/getranklist.php',params)
             .then((responseData) => {
+                let isNextTouch = true;
+                if (responseData.hasnexthour == 1){
+                    isNextTouch = false;
+                }
+
                 this.setState({
                     dataSource: this.state.dataSource.cloneWithRows(responseData.data),
                     loaded:true,
-                    txt:responseData.displaydate+responseData.rankhour+"点档("+responseData.rankdate+")"
+                    txt:responseData.displaydate+responseData.rankhour+"点档("+responseData.rankduring+")",
+                    isNextTouch:isNextTouch,
                 });
+                console.log(this.state.isNextTouch+"==="+responseData);
                 this.nexthourhour=responseData.nexthourhour;
                 this.nexthourdate=responseData.nexthourdate;
                 this.lasthourhour=responseData.lasthourhour;
@@ -70,12 +79,15 @@ export default class GDHourList extends Component<{}> {
             })
     }
     pushToDetail(value){
-        this.props.navigator.push({
-            component:GDCommunalDetail,
-            params:{
-                uri:'https://guangdiu.com/api/showdetail.php' + '?' + 'id=' + value
-            }
-        })
+        InteractionManager.runAfterInteractions(() => {
+            this.props.navigator.push({
+                component:GDCommunalDetail,
+                params:{
+                    uri:'https://guangdiu.com/api/showdetail.php' + '?' + 'id=' + value
+                }
+            })
+        });
+
     }
     //返回每一行cell的样式
     renderRow(rowData){
@@ -97,9 +109,12 @@ export default class GDHourList extends Component<{}> {
         this.fetchData();
     }
     pushToSettings() {
-        this.props.navigator.push({
-            component:GDSettings
+        InteractionManager.runAfterInteractions(() => {
+            this.props.navigator.push({
+                component:GDSettings
+            });
         });
+
     }
     //返回中间按钮
     renderTitleItem(){
@@ -126,7 +141,6 @@ export default class GDHourList extends Component<{}> {
                           onPullRelease={(resolve)=>this.fetchData(resolve)}
                           dataSource={this.state.dataSource}
                           renderRow={this.renderRow.bind(this)}
-
                 />
             );
         }
@@ -162,8 +176,9 @@ export default class GDHourList extends Component<{}> {
 
                     <TouchableOpacity
                         onPress={() => this.nextHour()}
+                        disabled={this.state.isNextTouch}
                     >
-                        <Text style={{marginLeft:10, fontSize:17, color:'green'}}>{"下1小时" + " >"}</Text>
+                        <Text style={{marginLeft:10, fontSize:17, color:this.state.isNextTouch == false ? 'green' : 'gray' }}>{"下1小时" + " >"}</Text>
                     </TouchableOpacity>
                 </View>
             </View>

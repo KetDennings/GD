@@ -14,6 +14,7 @@ import {
     ActivityIndicator,
     AsyncStorage,
     TextInput,
+    InteractionManager,
 } from 'react-native';
 // 引用外部文件
 import {PullList} from 'react-native-pull';
@@ -49,12 +50,15 @@ export default class GDSearch extends Component<{}> {
     }
     //点击cell跳转到详情页
     pushToDetail(value){
-        this.props.navigator.push({
-            component:GDCommunalDetail,
-            params:{
-                uri: 'https://guangdiu.com/api/showdetail.php' + '?' + 'id=' + value
-            }
-        })
+        InteractionManager.runAfterInteractions(() => {
+            this.props.navigator.push({
+                component:GDCommunalDetail,
+                params:{
+                    uri: 'https://guangdiu.com/api/showdetail.php' + '?' + 'id=' + value
+                }
+            })
+        });
+
     }
     //返回左边按钮
     renderLeftItem(){
@@ -187,6 +191,7 @@ export default class GDSearch extends Component<{}> {
                           onEndReached={this.loadMore}
                           onEndReachedThreshold={60}
                           renderFooter={this.renderFooter}
+                          removeClippedSubviews={true}
                 />
             );
         }
@@ -209,6 +214,7 @@ export default class GDSearch extends Component<{}> {
                                    keyboardType='default'
                                    placeholder="请输入搜索商品关键字"
                                    placeholderTextColor='gray'
+                                   underlineColorAndroid={'transparent'}
                                    autoFocus={true}
                                    onChangeText={(text)=>this.changeText=text}
                                    onEndEditing={() => this.fetchData()}
@@ -256,7 +262,6 @@ const styles = StyleSheet.create({
 
     },
     inputViewStyle:{
-
         height:35,
         flexDirection:'row',
         alignItems:'center',
@@ -274,6 +279,7 @@ const styles = StyleSheet.create({
         width:width*0.75,
         height:35,
         marginLeft:8,
+        alignItems:'center'
     },
     ButtonViewStyle:{
         marginRight:10,
